@@ -1,12 +1,13 @@
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use domain::time_record::TimeRecord;
 use crate::domain;
 use crate::usecase::simple_usecase::Repository;
 use crate::usecase::usecase;
-use crate::usecase::usecase::{MyError, TimeRecordWithID};
+use crate::usecase::usecase::MyError;
 
 pub struct MemoryRepository {
-    map: HashMap<String, TimeRecordWithID>,
+    map: HashMap<String, TimeRecord>,
 }
 
 impl MemoryRepository {
@@ -18,8 +19,8 @@ impl MemoryRepository {
 }
 
 impl Repository for MemoryRepository {
-    fn create(&mut self, record: domain::time_record::TimeRecord) -> usecase::Result<()> {
-        match self.map.entry(record.id.to_string()) {
+    fn create(&mut self, record: TimeRecord) -> usecase::Result<()> {
+        match self.map.entry(record.id().to_string()) {
             Entry::Occupied(_) => {
                 Err(Box::new(MyError {}))
             }
@@ -41,8 +42,8 @@ impl Repository for MemoryRepository {
         }
     }
 
-    fn list(&mut self) -> usecase::Result<Vec<TimeRecordWithID>> {
-        Ok(self.map.values().cloned().collect::<Vec<TimeRecordWithID>>())
+    fn list(&mut self) -> usecase::Result<Vec<TimeRecord>> {
+        Ok(self.map.values().cloned().collect::<Vec<TimeRecord>>())
     }
 }
 

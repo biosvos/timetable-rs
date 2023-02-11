@@ -1,5 +1,6 @@
 use chrono::{DateTime, Local};
 
+#[derive(Clone)]
 pub struct TimeRecord {
     id: String,
     start: DateTime<Local>,
@@ -24,5 +25,17 @@ impl TimeRecord {
             end,
             memo,
         }
+    }
+    pub fn id(&self) -> &str {
+        &self.id
+    }
+    pub fn start(&self) -> DateTime<Local> {
+        self.start
+    }
+    pub fn end(&self) -> DateTime<Local> {
+        self.end
+    }
+    pub fn memo(&self) -> &str {
+        &self.memo
     }
 }

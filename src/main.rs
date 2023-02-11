@@ -9,7 +9,7 @@ mod usecase;
 mod infra;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let usecase = SimpleUsecase::new(Box::new(MemoryRepository::new()), Box::new(UuidIdGenerator::new()));
+    let mut usecase = SimpleUsecase::new(Box::new(MemoryRepository::new()), Box::new(UuidIdGenerator::new()));
     match usecase.create_time_record(TimeRecord {
         start: "2023-02-10 21:24:50".to_string(),
         end: "2023-02-10 21:24:50".to_string(),
@@ -20,6 +20,5 @@ fn main() -> Result<(), Box<dyn Error>> {
             println!("{}", err);
         }
     }
-    dbg!(usecase);
     Ok(())
 }

@@ -32,7 +32,7 @@ impl SimpleUsecase {
 }
 
 impl Usecase for SimpleUsecase {
-    fn create_time_record(&self, record: TimeRecord) -> Result<()> {
+    fn create_time_record(&mut self, record: TimeRecord) -> Result<()> {
         let start = SimpleUsecase::parse_time(record.start)?;
         let end = SimpleUsecase::parse_time(record.end)?;
         let record = domain::time_record::TimeRecord::new_with_id(
@@ -45,7 +45,7 @@ impl Usecase for SimpleUsecase {
         Ok(())
     }
 
-    fn delete_time_record(&self, id: String) -> Result<()> {
+    fn delete_time_record(&mut self, id: String) -> Result<()> {
         self.repository.delete(id)?;
         Ok(())
     }

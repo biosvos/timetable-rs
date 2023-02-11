@@ -13,11 +13,11 @@ impl fmt::Display for MyError {
 
 impl Error for MyError {}
 
-pub type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
+pub type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 pub trait Usecase {
-    fn create_time_record(&self, record: TimeRecord) -> Result<()>;
-    fn delete_time_record(&self, id: String) -> Result<()>;
+    fn create_time_record(&mut self, record: TimeRecord) -> Result<()>;
+    fn delete_time_record(&mut self, id: String) -> Result<()>;
     fn list_time_records(&self) -> Result<Vec<TimeRecordWithID>>;
 }
 
