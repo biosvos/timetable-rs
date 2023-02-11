@@ -34,16 +34,40 @@ impl Repository for MemoryRepository {
     fn delete(&mut self, id: String) -> usecase::Result<()> {
         match self.map.remove(&id) {
             None => {
-                Ok(())
+                Err(Box::new(MyError {}))
             }
             Some(_) => {
-                Err(Box::new(MyError {}))
+                Ok(())
             }
         }
     }
 
     fn list(&mut self) -> usecase::Result<Vec<TimeRecord>> {
         Ok(self.map.values().cloned().collect::<Vec<TimeRecord>>())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use chrono::Local;
+    use crate::domain;
+    use crate::infra::memory_repository::MemoryRepository;
+    use crate::usecase::simple_usecase::Repository;
+
+    #[test]
+    fn internal() {
+        let mut repo = MemoryRepository::new();
+        let time = Local::now();
+        repo.create(domain::time_record::TimeRecord::new_with_id("12".to_string(), time, time, "memo".to_string())).unwrap();
+
+        let ret = repo.list().unwrap();
+        assert_eq!(ret.len(), 1);
+        assert_eq!(ret[0].start(), time);
+
+        repo.delete("12".to_string()).unwrap();
+
+        let err = repo.delete("12".to_string());
+        assert_eq!(err.is_err(), true);
     }
 }
 

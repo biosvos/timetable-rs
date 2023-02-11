@@ -20,5 +20,9 @@ fn main() -> Result<(), Box<dyn Error>> {
             println!("{}", err);
         }
     }
+
+    for record in usecase.list_time_records()? {
+        println!("{} {} ~ {} {}", record.id, record.start, record.end, record.memo);
+    }
     Ok(())
 }

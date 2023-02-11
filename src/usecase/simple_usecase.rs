@@ -50,9 +50,13 @@ impl Usecase for SimpleUsecase {
         Ok(())
     }
 
-    fn list_time_records(&self) -> Result<Vec<TimeRecordWithID>> {
-        todo!()
+    fn list_time_records(&mut self) -> Result<Vec<TimeRecordWithID>> {
+        let ret = self.repository.list()?;
+        Ok(ret.iter().map(|x| TimeRecordWithID {
+            id: x.id().to_string(),
+            start: x.start().format("%Y-%m-%d %H:%M:%S").to_string(),
+            end: x.end().format("%Y-%m-%d %H:%M:%S").to_string(),
+            memo: x.memo().to_string(),
+        }).collect())
     }
 }
-
-

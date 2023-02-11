@@ -1,4 +1,4 @@
-use std::{error, fmt};
+use std::fmt;
 use std::error::Error;
 use std::fmt::Formatter;
 
@@ -18,7 +18,7 @@ pub type Result<T> = std::result::Result<T, Box<dyn Error>>;
 pub trait Usecase {
     fn create_time_record(&mut self, record: TimeRecord) -> Result<()>;
     fn delete_time_record(&mut self, id: String) -> Result<()>;
-    fn list_time_records(&self) -> Result<Vec<TimeRecordWithID>>;
+    fn list_time_records(&mut self) -> Result<Vec<TimeRecordWithID>>;
 }
 
 #[derive(Clone)]
