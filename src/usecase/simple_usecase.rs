@@ -17,6 +17,8 @@ pub struct SimpleUsecase {
     id_generator: Box<dyn IdGenerator>,
 }
 
+const DEFAULT_TIME_FORMAT: &'static str = "%Y-%m-%d %H:%M:%S";
+
 impl SimpleUsecase {
     pub fn new(repository: Box<dyn Repository>, id_generator: Box<dyn IdGenerator>) -> SimpleUsecase {
         SimpleUsecase {
@@ -26,7 +28,7 @@ impl SimpleUsecase {
     }
 
     fn parse_time(time: String) -> Result<DateTime<Local>> {
-        let datetime = Local.datetime_from_str(&time, "%Y-%m-%d %H:%M:%S")?;
+        let datetime = Local.datetime_from_str(&time, DEFAULT_TIME_FORMAT)?;
         Ok(DateTime::from(datetime))
     }
 }
@@ -54,8 +56,8 @@ impl Usecase for SimpleUsecase {
         let ret = self.repository.list()?;
         Ok(ret.iter().map(|x| TimeRecordWithID {
             id: x.id().to_string(),
-            start: x.start().format("%Y-%m-%d %H:%M:%S").to_string(),
-            end: x.end().format("%Y-%m-%d %H:%M:%S").to_string(),
+            start: x.start().format(DEFAULT_TIME_FORMAT).to_string(),
+            end: x.end().format(DEFAULT_TIME_FORMAT).to_string(),
             memo: x.memo().to_string(),
         }).collect())
     }
