@@ -1,5 +1,7 @@
+use std::cell::RefCell;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::rc::Rc;
 use domain::time_record::TimeRecord;
 use crate::domain;
 use crate::usecase::simple_usecase::Repository;
@@ -7,20 +9,20 @@ use crate::usecase::usecase;
 use crate::usecase::usecase::MyError;
 
 pub struct MemoryRepository {
-    map: HashMap<String, TimeRecord>,
+    map: Rc<RefCell<HashMap<String, TimeRecord>>>,
 }
 
 impl MemoryRepository {
-    pub fn new() -> Box<dyn Repository> {
-        Box::new(MemoryRepository {
-            map: HashMap::new(),
-        })
+    pub fn new() -> Self {
+        MemoryRepository {
+            map: Rc::new(RefCell::new(HashMap::new())),
+        }
     }
 }
 
 impl Repository for MemoryRepository {
-    fn create(&mut self, record: TimeRecord) -> usecase::Result<()> {
-        match self.map.entry(record.id().to_string()) {
+    fn create(&self, record: TimeRecord) -> usecase::Result<()> {
+        match self.map.borrow_mut().entry(record.id().to_string()) {
             Entry::Occupied(_) => {
                 Err(Box::new(MyError {}))
             }
@@ -31,8 +33,8 @@ impl Repository for MemoryRepository {
         }
     }
 
-    fn delete(&mut self, id: String) -> usecase::Result<()> {
-        match self.map.remove(&id) {
+    fn delete(&self, id: String) -> usecase::Result<()> {
+        match self.map.borrow_mut().remove(&id) {
             None => {
                 Err(Box::new(MyError {}))
             }
@@ -42,8 +44,8 @@ impl Repository for MemoryRepository {
         }
     }
 
-    fn list(&mut self) -> usecase::Result<Vec<TimeRecord>> {
-        Ok(self.map.values().cloned().collect::<Vec<TimeRecord>>())
+    fn list(&self) -> usecase::Result<Vec<TimeRecord>> {
+        Ok(self.map.borrow_mut().values().cloned().collect::<Vec<TimeRecord>>())
     }
 }
 

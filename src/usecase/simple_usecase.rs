@@ -1,25 +1,25 @@
 use chrono::{DateTime, Local, TimeZone};
 use crate::domain;
-use crate::usecase::usecase::{TimeRecord, TimeRecordWithID, Usecase, Result};
+use crate::usecase::usecase::{TimeRecordWithID, Usecase, Result};
 
 pub trait Repository {
-    fn create(&mut self, record: domain::time_record::TimeRecord) -> Result<()>;
-    fn delete(&mut self, id: String) -> Result<()>;
-    fn list(&mut self) -> Result<Vec<domain::time_record::TimeRecord>>;
+    fn create(&self, record: domain::time_record::TimeRecord) -> Result<()>;
+    fn delete(&self, id: String) -> Result<()>;
+    fn list(&self) -> Result<Vec<domain::time_record::TimeRecord>>;
 }
 
-pub trait IdGenerator {
-    fn generate(&self) -> String;
-}
-
-pub struct SimpleUsecase {
-    repository: Box<dyn Repository>,
+#[derive(Clone)]
+pub struct SimpleUsecase<R: Repository> {
+    repository: R,
 }
 
 const DEFAULT_TIME_FORMAT: &'static str = "%Y-%m-%d %H:%M:%S";
 
-impl SimpleUsecase {
-    pub fn new(repository: Box<dyn Repository>) -> SimpleUsecase {
+impl<R> SimpleUsecase<R>
+    where
+        R: Repository
+{
+    pub fn new(repository: R) -> SimpleUsecase<R> {
         SimpleUsecase {
             repository,
         }
@@ -31,10 +31,13 @@ impl SimpleUsecase {
     }
 }
 
-impl Usecase for SimpleUsecase {
-    fn create_time_record(&mut self, record: TimeRecordWithID) -> Result<()> {
-        let start = SimpleUsecase::parse_time(record.start)?;
-        let end = SimpleUsecase::parse_time(record.end)?;
+impl<R> Usecase for SimpleUsecase<R>
+    where
+        R: Repository
+{
+    fn create_time_record(&self, record: TimeRecordWithID) -> Result<()> {
+        let start = SimpleUsecase::<R>::parse_time(record.start)?;
+        let end = SimpleUsecase::<R>::parse_time(record.end)?;
         let record = domain::time_record::TimeRecord::new_with_id(
             record.id,
             start,
@@ -45,12 +48,12 @@ impl Usecase for SimpleUsecase {
         Ok(())
     }
 
-    fn delete_time_record(&mut self, id: String) -> Result<()> {
+    fn delete_time_record(&self, id: String) -> Result<()> {
         self.repository.delete(id)?;
         Ok(())
     }
 
-    fn list_time_records(&mut self) -> Result<Vec<TimeRecordWithID>> {
+    fn list_time_records(&self) -> Result<Vec<TimeRecordWithID>> {
         let ret = self.repository.list()?;
         Ok(ret.iter().map(|x| TimeRecordWithID {
             id: x.id().to_string(),
