@@ -11,10 +11,10 @@ pub struct MemoryRepository {
 }
 
 impl MemoryRepository {
-    pub fn new() -> MemoryRepository {
-        MemoryRepository {
+    pub fn new() -> Box<dyn Repository> {
+        Box::new(MemoryRepository {
             map: HashMap::new(),
-        }
+        })
     }
 }
 
@@ -52,7 +52,6 @@ mod test {
     use chrono::Local;
     use crate::domain;
     use crate::infra::memory_repository::MemoryRepository;
-    use crate::usecase::simple_usecase::Repository;
 
     #[test]
     fn internal() {

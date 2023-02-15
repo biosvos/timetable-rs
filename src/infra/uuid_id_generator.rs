@@ -3,8 +3,8 @@ use crate::usecase::simple_usecase::IdGenerator;
 pub struct UuidIdGenerator;
 
 impl UuidIdGenerator {
-    pub fn new() -> UuidIdGenerator {
-        UuidIdGenerator {}
+    pub fn new() -> Box<dyn IdGenerator> {
+        Box::new(UuidIdGenerator {})
     }
 }
 
