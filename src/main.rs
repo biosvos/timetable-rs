@@ -1,28 +1,46 @@
-use std::error::Error;
+use actix_web::{post, App, HttpResponse, HttpServer, web, Responder};
+use actix_web::http::StatusCode;
+use serde::{Deserialize, Serialize};
 use crate::infra::memory_repository::MemoryRepository;
-use crate::infra::uuid_id_generator::UuidIdGenerator;
 use crate::usecase::simple_usecase::SimpleUsecase;
-use crate::usecase::usecase::{TimeRecord, Usecase};
+use crate::usecase::usecase::{TimeRecordWithID, Usecase};
 
 mod domain;
 mod usecase;
 mod infra;
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let mut usecase = SimpleUsecase::new(MemoryRepository::new(), UuidIdGenerator::new());
-    match usecase.create_time_record(TimeRecord {
-        start: "2023-02-10 21:24:50".to_string(),
-        end: "2023-02-10 21:24:50".to_string(),
-        memo: "".to_string(),
-    }) {
-        Ok(_) => {}
-        Err(err) => {
-            println!("{}", err);
-        }
-    }
+#[derive(Serialize, Deserialize)]
+struct CreateTimeRecordsRequest {
+    id: String,
+    start: String,
+    end: Option<String>,
+    memo: String,
+}
 
-    for record in usecase.list_time_records()? {
-        println!("{} {} ~ {} {}", record.id, record.start, record.end, record.memo);
-    }
-    Ok(())
+#[post("/time_records")]
+async fn create_time_records(req: web::Json<CreateTimeRecordsRequest>) -> Result<HttpResponse, actix_web::Error> {
+    let mut usecase = SimpleUsecase::new(MemoryRepository::new());
+    usecase.create_time_record(TimeRecordWithID {
+        id: req.id.clone(),
+        start: req.start.clone(),
+        end: req.end.clone().unwrap_or("".to_string()),
+        memo: req.memo.clone(),
+    })?;
+    Ok(HttpResponse::Ok().status(StatusCode::OK).finish())
+}
+
+async fn index() -> impl Responder {
+    "Hello world!"
+}
+
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    HttpServer::new(|| {
+        App::new()
+            .service(create_time_records)
+            .route("/hey", web::get().to(index))
+    })
+        .bind(("127.0.0.1", 8080))?
+        .run()
+        .await
 }

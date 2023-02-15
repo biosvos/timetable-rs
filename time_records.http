@@ -1,0 +1,9 @@
+POST 127.0.0.1:8080/time_records
+Content-Type: application/json
+
+{
+  "id": "asdf",
+  "start": "2023-02-15 20:16:00",
+  "end": "2023-02-15 20:16:00",
+  "memo": "asdf"
+}

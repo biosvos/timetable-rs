@@ -14,16 +14,14 @@ pub trait IdGenerator {
 
 pub struct SimpleUsecase {
     repository: Box<dyn Repository>,
-    id_generator: Box<dyn IdGenerator>,
 }
 
 const DEFAULT_TIME_FORMAT: &'static str = "%Y-%m-%d %H:%M:%S";
 
 impl SimpleUsecase {
-    pub fn new(repository: Box<dyn Repository>, id_generator: Box<dyn IdGenerator>) -> SimpleUsecase {
+    pub fn new(repository: Box<dyn Repository>) -> SimpleUsecase {
         SimpleUsecase {
             repository,
-            id_generator,
         }
     }
 
@@ -34,11 +32,11 @@ impl SimpleUsecase {
 }
 
 impl Usecase for SimpleUsecase {
-    fn create_time_record(&mut self, record: TimeRecord) -> Result<()> {
+    fn create_time_record(&mut self, record: TimeRecordWithID) -> Result<()> {
         let start = SimpleUsecase::parse_time(record.start)?;
         let end = SimpleUsecase::parse_time(record.end)?;
         let record = domain::time_record::TimeRecord::new_with_id(
-            self.id_generator.generate(),
+            record.id,
             start,
             end,
             record.memo,
